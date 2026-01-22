@@ -16,7 +16,7 @@ int main()
 	OLED_Init();
 	OLED_TurnOn_Screen();
 	OLED_Flash_Screen(0x00);
-	OLED_WriteIn_16x8String(0, 0, 10, title);
+	OLED_WriteIn_16x8String(3, 1, 10, title);
 	while(1);
 	return 0;
 }
