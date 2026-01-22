@@ -33,13 +33,15 @@ void HAL_I2C_MspInit(I2C_HandleTypeDef *hi2c)
 		.Mode = GPIO_MODE_AF_OD,
 		.Pin = GPIO_PIN_6,
 		.Pull = GPIO_NOPULL,
-		.Speed = GPIO_SPEED_FREQ_MEDIUM
+		.Speed = GPIO_SPEED_FREQ_MEDIUM,
+		.Alternate = GPIO_AF4_I2C1
 	};
 	GPIO_InitTypeDef sdaConfig = {
 		.Mode = GPIO_MODE_AF_OD,
 		.Pin = GPIO_PIN_7,
 		.Pull = GPIO_NOPULL,
-		.Speed = GPIO_SPEED_FREQ_MEDIUM
+		.Speed = GPIO_SPEED_FREQ_MEDIUM,
+		.Alternate = GPIO_AF4_I2C1
 	};
 	HAL_GPIO_Init(GPIOB, &sclConfig);
 	HAL_GPIO_Init(GPIOB, &sdaConfig);
