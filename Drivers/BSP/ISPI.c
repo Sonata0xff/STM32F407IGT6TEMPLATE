@@ -11,25 +11,29 @@ SPI1 will be matser, SPI2 will be the slave
 */
 
 DMA_HandleTypeDef tx_dma = {
-	.Instance = DMA1_Channel3,
+	.Instance = DMA1_Stream3,
+	.Init.Channel = DMA_CHANNEL_3,
 	.Init.Direction = DMA_MEMORY_TO_PERIPH,
 	.Init.PeriphInc = DMA_PINC_DISABLE,
 	.Init.MemInc = DMA_MINC_ENABLE,
 	.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE,
 	.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE,
 	.Init.Mode = DMA_NORMAL,
-	.Init.Priority = DMA_PRIORITY_HIGH
+	.Init.Priority = DMA_PRIORITY_HIGH,
+	.Init.FIFOMode = DMA_FIFOMODE_DISABLE
 };
 
 DMA_HandleTypeDef rx_dma = {
-	.Instance = DMA1_Channel2,
+	.Instance = DMA1_Stream2,
+	.Init.Channel = DMA_CHANNEL_3,
 	.Init.Direction = DMA_PERIPH_TO_MEMORY,
 	.Init.PeriphInc = DMA_PINC_DISABLE,
 	.Init.MemInc = DMA_MINC_ENABLE,
 	.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE,
 	.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE,
 	.Init.Mode = DMA_NORMAL,
-	.Init.Priority = DMA_PRIORITY_HIGH
+	.Init.Priority = DMA_PRIORITY_HIGH,
+	.Init.FIFOMode = DMA_FIFOMODE_DISABLE
 };
 
 SPI_HandleTypeDef spi1_config = {
@@ -38,7 +42,7 @@ SPI_HandleTypeDef spi1_config = {
 		.Init.Direction = SPI_DIRECTION_2LINES,
 		.Init.DataSize = SPI_DATASIZE_8BIT,
 		.Init.NSS = SPI_NSS_SOFT,
-		.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_8,// 4Mhz, This need tobe explosed to the user.
+		.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_16,// 5.25Mhz, This need tobe explosed to the user.
 		.Init.FirstBit = SPI_FIRSTBIT_MSB, // This need to be explosed to the user.
 		.Init.TIMode = SPI_TIMODE_DISABLE,
 		.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE,
@@ -62,46 +66,47 @@ void ISPI1_Init()
 void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
 {
 		/*
-		PA4 = NSS
+		PA4 = NSS This is default conf.It will finally defined by user
 		PB3 = SCK
 		PB4 = MISO
 		PB5 = MOSI
 		*/
 		//DMA Init
 		(void)hspi;
-		__HAL_RCC_DMA1_CLK_ENABLE();
+		__HAL_RCC_DMA2_CLK_ENABLE();
 		HAL_DMA_Init(&tx_dma);
 		HAL_DMA_Init(&rx_dma);
 		__HAL_LINKDMA(&spi1_config, hdmatx, tx_dma);
 		__HAL_LINKDMA(&spi1_config, hdmarx, rx_dma);
 		//GPIO Init
-		__HAL_RCC_GPIOA_CLK_ENABLE();
+		__HAL_RCC_GPIOB_CLK_ENABLE();
 	
 		//SCK Init
 		GPIO_InitTypeDef io_config = {
-			.Pin = GPIO_PIN_5,
+			.Pin = GPIO_PIN_3,
 			.Mode = GPIO_MODE_AF_PP,
 			.Speed = GPIO_SPEED_FREQ_HIGH,
-			.Pull = GPIO_NOPULL
+			.Pull = GPIO_NOPULL,
+			.Alternate = GPIO_AF5_SPI1
 		};
 		HAL_GPIO_Init(GPIOA, &io_config);
 		
 		//MOSI Init
-		io_config.Pin = GPIO_PIN_7;
+		io_config.Pin = GPIO_PIN_6;
 		HAL_GPIO_Init(GPIOA, &io_config);
 		
 		//MISO Init
-		io_config.Pin = GPIO_PIN_6;
-		io_config.Mode = GPIO_MODE_AF_INPUT;
+		io_config.Pin = GPIO_PIN_4;
+		io_config.Mode = GPIO_MODE_INPUT;
 		io_config.Pull = GPIO_NOPULL;//here is a fucking bug here, we can't use pull up here for si24r1 chip!!!
 		HAL_GPIO_Init(GPIOA, &io_config);
 		
 		//NVIC Init
 		HAL_NVIC_SetPriorityGrouping(NVIC_PRIORITYGROUP_2);
-		HAL_NVIC_SetPriority(DMA1_Channel2_IRQn, 0, 1);
-		HAL_NVIC_SetPriority(DMA1_Channel3_IRQn, 0, 1);
-		HAL_NVIC_EnableIRQ(DMA1_Channel2_IRQn);
-		HAL_NVIC_EnableIRQ(DMA1_Channel3_IRQn);
+		HAL_NVIC_SetPriority(DMA2_Stream3_IRQn, 0, 1);
+		HAL_NVIC_SetPriority(DMA2_Stream2_IRQn, 0, 1);
+		HAL_NVIC_EnableIRQ(DMA2_Stream3_IRQn);
+		HAL_NVIC_EnableIRQ(DMA2_Stream2_IRQn);
 }
 
 HAL_StatusTypeDef ISPI1_SendBytes(unsigned char* val, int size)
