@@ -194,12 +194,12 @@ void ISPI_Comm_Block_Wait()
 }
 
 //DMA IT Handler
-void DMA1_Channel2_IRQHandler()
+void DMA2_Stream2_IRQHandler()
 {
 	HAL_DMA_IRQHandler(&rx_dma);
 }
 
-void DMA1_Channel3_IRQHandler()
+void DMA2_Stream3_IRQHandler()
 {
 	HAL_DMA_IRQHandler(&tx_dma);
 }
